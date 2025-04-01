@@ -8,8 +8,6 @@ namespace DefaultNamespace
 {
     public class OffsetsFinder : MonoBehaviour
     {
-        [SerializeField] private TextAsset modelJson;
-        [SerializeField] private TextAsset spaceJson;
         [SerializeField] private MatrixVisualizer matrixVisualizer;
         
         private List<Matrix4x4> _modelMatrices = new();
@@ -25,10 +23,10 @@ namespace DefaultNamespace
 
         private void LoadMatrices()
         {
-            _modelMatrices = GetMatrices(modelJson);
+            _modelMatrices = GetMatrices(Resources.Load<TextAsset>("model"));
             Debug.Log("Deserialized model : " + _modelMatrices.Count);
 
-            _spaceMatrices = GetMatrices(spaceJson);
+            _spaceMatrices = GetMatrices(Resources.Load<TextAsset>("space"));
             Debug.Log("Deserialized space : " + _spaceMatrices.Count);
         }
 
@@ -52,12 +50,6 @@ namespace DefaultNamespace
 
             Debug.Log($"offsets found: {_offsetsMatrices.Count}");
         }
-
-        private List<Matrix4x4> GetMatrices(TextAsset text)
-        {
-            var modelData = JsonConvert.DeserializeObject<List<MatrixData>>(text.text);
-            return modelData.Select(MatrixData.ToMatrix4x4).ToList();
-        }
         
         private void SaveOffsets()
         {
@@ -66,6 +58,12 @@ namespace DefaultNamespace
             File.WriteAllText(Application.dataPath + "/offsets.json", json);
 
             matrixVisualizer.VisualizeMatrices(_modelMatrices, _spaceMatrices, _offsetsMatrices);
+        }
+        
+        private List<Matrix4x4> GetMatrices(TextAsset text)
+        {
+            var modelData = JsonConvert.DeserializeObject<List<MatrixData>>(text.text);
+            return modelData.Select(MatrixData.ToMatrix4x4).ToList();
         }
     }
 }
